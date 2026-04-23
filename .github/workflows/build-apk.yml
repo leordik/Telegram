@@ -56,6 +56,26 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Inject Telegram API credentials
+        env:
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_HASH: ${{ secrets.APP_HASH }}
+        run: |
+          set -e
+          if [ -z "$APP_ID" ] || [ -z "$APP_HASH" ]; then
+            echo "::error::APP_ID and APP_HASH repo secrets are required"
+            exit 1
+          fi
+          FILE=TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java
+          python3 - <<'PY'
+          import os, re
+          path = "TMessagesProj/src/main/java/org/telegram/messenger/BuildVars.java"
+          src = open(path).read()
+          src = re.sub(r'(public static int APP_ID\s*=\s*)\d+(;)', r'\g<1>' + os.environ["APP_ID"] + r'\g<2>', src, count=1)
+          src = re.sub(r'(public static String APP_HASH\s*=\s*")[^"]*(";)', r'\g<1>' + os.environ["APP_HASH"] + r'\g<2>', src, count=1)
+          open(path, "w").write(src)
+          PY
+
       - name: Build afatDebug APK
         run: ./gradlew :TMessagesProj_App:assembleAfatDebug --no-daemon --stacktrace
 

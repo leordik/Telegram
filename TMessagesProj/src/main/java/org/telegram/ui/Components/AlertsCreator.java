@@ -1478,6 +1478,7 @@ public class AlertsCreator {
             builder.setMessage(stringBuilder);
             builder.setMessageTextViewClickable(false);
             builder.setPositiveButton(LocaleController.getString(R.string.Open), (dialogInterface, i) -> open.run());
+            builder.setNeutralButton(LocaleController.getString(R.string.Copy), (dialogInterface, i) -> Browser.copyLinkToClipboard(fragment.getParentActivity(), Uri.parse(url)));
             builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
             fragment.showDialog(dialog[0] = builder.create());
         }
@@ -1523,6 +1524,7 @@ public class AlertsCreator {
             builder.setMessage(stringBuilder);
             builder.setMessageTextViewClickable(false);
             builder.setPositiveButton(LocaleController.getString(R.string.Open), (dialogInterface, i) -> open.run());
+            builder.setNeutralButton(LocaleController.getString(R.string.Copy), (dialogInterface, i) -> Browser.copyLinkToClipboard(context, Uri.parse(url)));
             builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
             dialog[0] = builder.show();
         }

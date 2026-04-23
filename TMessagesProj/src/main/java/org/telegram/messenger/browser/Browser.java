@@ -57,6 +57,7 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.BottomSheetTabs;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.BubbleActivity;
+import org.telegram.ui.Components.BulletinFactory;
 import org.telegram.ui.LaunchActivity;
 import org.telegram.ui.web.RestrictedDomainsList;
 
@@ -372,6 +373,7 @@ public class Browser {
         builder.setMessage(stringBuilder);
         builder.setMessageTextViewClickable(false);
         builder.setPositiveButton(LocaleController.getString(R.string.Open), (dialogInterface, i) -> onConfirm.run());
+        builder.setNeutralButton(LocaleController.getString(R.string.Copy), (dialogInterface, i) -> copyLinkToClipboard(context, uri));
         builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
         dialog[0] = builder.create();
         try {
@@ -379,6 +381,16 @@ public class Browser {
         } catch (Exception e) {
             FileLog.e(e);
             onConfirm.run();
+        }
+    }
+
+    public static void copyLinkToClipboard(Context context, Uri uri) {
+        if (uri == null) {
+            return;
+        }
+        String toCopy = uri.toString();
+        if (AndroidUtilities.addToClipboard(toCopy)) {
+            BulletinFactory.global().createCopyLinkBulletin().show();
         }
     }
 
