@@ -8484,6 +8484,9 @@
     <string name="BrowserSettingsNoCustomTabs">New Tabs in External Browser</string>
     <string name="BrowserSettingsNoCustomTabsInfo">You can choose to open external link without leaving Telegram.</string>
     <string name="BrowserSettingsEnableInfo">Open links inside Telegram without starting an external browser.</string>
+    <string name="BrowserSettingsConfirmOpeningTitle">Link confirmation</string>
+    <string name="BrowserSettingsConfirmOpening">Ask before opening links</string>
+    <string name="BrowserSettingsConfirmOpeningInfo">Show a confirmation dialog before opening any external link — helpful to avoid opening suspicious links by accident.</string>
     <string name="BrowserSettingsCacheClear">Clear Cache</string>
     <string name="BrowserSettingsCookiesClear">Clear Cookies</string>
     <string name="BrowserSettingsCacheClearText">Are you sure you want to clear browser cache%s?</string>

@@ -19,7 +19,12 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.URLSpan;
+import android.view.View;
 
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
@@ -295,6 +300,92 @@ public class Browser {
         if (context == null || uri == null) {
             return;
         }
+        if (shouldConfirmBeforeOpen(uri)) {
+            final Uri finalUri = uri;
+            final boolean finalAllowCustom = _allowCustom;
+            final boolean finalTryTelegraph = tryTelegraph;
+            final boolean finalForceNotInternalForApps = forceNotInternalForApps;
+            final Progress finalInCaseLoading = inCaseLoading;
+            final String finalBrowser = browser;
+            final boolean finalAllowIntent = allowIntent;
+            final boolean finalAllowInAppBrowser = allowInAppBrowser;
+            final boolean finalForceRequest = forceRequest;
+            showOpenLinkConfirmation(context, uri, () -> openUrlInternal(context, finalUri, finalAllowCustom, finalTryTelegraph, finalForceNotInternalForApps, finalInCaseLoading, finalBrowser, finalAllowIntent, finalAllowInAppBrowser, finalForceRequest));
+            return;
+        }
+        openUrlInternal(context, uri, _allowCustom, tryTelegraph, forceNotInternalForApps, inCaseLoading, browser, allowIntent, allowInAppBrowser, forceRequest);
+    }
+
+    public static boolean shouldConfirmBeforeOpen(Uri uri) {
+        if (!SharedConfig.confirmLinks || uri == null) {
+            return false;
+        }
+        String scheme = uri.getScheme();
+        if (scheme == null) {
+            return false;
+        }
+        scheme = scheme.toLowerCase();
+        if ("mailto".equals(scheme) || "tel".equals(scheme) || "sms".equals(scheme)) {
+            return false;
+        }
+        if (isInternalUri(uri, null)) {
+            return false;
+        }
+        String urlStr = uri.toString();
+        if (urlMustNotHaveConfirmation(urlStr)) {
+            return false;
+        }
+        return true;
+    }
+
+    public static void showOpenLinkConfirmation(Context context, Uri uri, Runnable onConfirm) {
+        if (!AndroidUtilities.isContextSafe(context)) {
+            onConfirm.run();
+            return;
+        }
+        String urlFinal;
+        try {
+            urlFinal = replaceHostname(uri, IDN_toUnicode(uri.getHost()), null);
+        } catch (Exception e) {
+            FileLog.e(e, false);
+            urlFinal = uri.toString();
+        }
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(LocaleController.getString(R.string.OpenUrlTitle));
+        final AlertDialog[] dialog = new AlertDialog[1];
+        final SpannableString link = new SpannableString(urlFinal);
+        final String openUrl = urlFinal;
+        link.setSpan(new URLSpan(openUrl) {
+            @Override
+            public void onClick(View widget) {
+                onConfirm.run();
+                if (dialog[0] != null) {
+                    dialog[0].dismiss();
+                }
+            }
+        }, 0, link.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        final SpannableStringBuilder stringBuilder = new SpannableStringBuilder(LocaleController.getString(R.string.OpenUrlAlert2));
+        int index = stringBuilder.toString().indexOf("%1$s");
+        if (index >= 0) {
+            stringBuilder.replace(index, index + 4, link);
+        }
+        builder.setMessage(stringBuilder);
+        builder.setMessageTextViewClickable(false);
+        builder.setPositiveButton(LocaleController.getString(R.string.Open), (dialogInterface, i) -> onConfirm.run());
+        builder.setNegativeButton(LocaleController.getString(R.string.Cancel), null);
+        dialog[0] = builder.create();
+        try {
+            dialog[0].show();
+        } catch (Exception e) {
+            FileLog.e(e);
+            onConfirm.run();
+        }
+    }
+
+    public static void openUrlInternal(final Context context, Uri uri, boolean _allowCustom, boolean tryTelegraph, boolean forceNotInternalForApps, Progress inCaseLoading, String browser, boolean allowIntent, boolean allowInAppBrowser, boolean forceRequest) {
+        if (context == null || uri == null) {
+            return;
+        }
         final int currentAccount = UserConfig.selectedAccount;
         boolean[] forceBrowser = new boolean[]{false};
         boolean internalUri = isInternalUri(uri, forceBrowser);
@@ -339,7 +430,7 @@ public class Browser {
                             }
                         }
                         if (!ok) {
-                            openUrl(context, finalUri, allowCustom, false);
+                            openUrlInternal(context, finalUri, allowCustom, false, false, null, null, false, true, false);
                         }
                     }));
                     if (inCaseLoading != null) {

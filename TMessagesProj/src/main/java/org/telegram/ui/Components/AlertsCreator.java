@@ -1456,7 +1456,7 @@ public class AlertsCreator {
             } else {
                 urlFinal = url;
             }
-            final Runnable open = () -> Browser.openUrl(fragment.getParentActivity(), Uri.parse(url), inlineReturn == 0, tryTelegraph, progress);
+            final Runnable open = () -> Browser.openUrlInternal(fragment.getParentActivity(), Uri.parse(url), inlineReturn == 0, tryTelegraph, false, progress, null, false, true, false);
             final AlertDialog.Builder builder = new AlertDialog.Builder(fragment.getParentActivity(), resourcesProvider);
             builder.setTitle(LocaleController.getString(R.string.OpenUrlTitle));
             final AlertDialog[] dialog = new AlertDialog[1];
@@ -1501,7 +1501,7 @@ public class AlertsCreator {
             } else {
                 urlFinal = url;
             }
-            final Runnable open = () -> Browser.openUrl(context, Uri.parse(url), inlineReturn == 0, tryTelegraph, progress);
+            final Runnable open = () -> Browser.openUrlInternal(context, Uri.parse(url), inlineReturn == 0, tryTelegraph, false, progress, null, false, true, false);
             final AlertDialog.Builder builder = new AlertDialog.Builder(context, resourcesProvider);
             builder.setTitle(LocaleController.getString(R.string.OpenUrlTitle));
             final AlertDialog[] dialog = new AlertDialog[1];

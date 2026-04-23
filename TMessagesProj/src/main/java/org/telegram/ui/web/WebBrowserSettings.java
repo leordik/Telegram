@@ -207,6 +207,7 @@ public class WebBrowserSettings extends UniversalFragment implements Notificatio
     public static final int BUTTON_OPEN_HISTORY = 9;
     public static final int BUTTON_CUSTOMTABS_ON = 10;
     public static final int BUTTON_CUSTOMTABS_OFF = 11;
+    public static final int BUTTON_CONFIRM_LINKS = 14;
 
     public int enableRow;
     public int clearCookiesRow;
@@ -230,6 +231,9 @@ public class WebBrowserSettings extends UniversalFragment implements Notificatio
         enableRow = items.size();
         items.add(UItem.asRippleCheck(BUTTON_TOGGLE, getString(R.string.BrowserSettingsEnable)).setChecked(SharedConfig.inappBrowser));
         items.add(UItem.asShadow(LocaleController.getString(R.string.BrowserSettingsEnableInfo)));
+        items.add(UItem.asHeader(getString(R.string.BrowserSettingsConfirmOpeningTitle)));
+        items.add(UItem.asCheck(BUTTON_CONFIRM_LINKS, getString(R.string.BrowserSettingsConfirmOpening)).setChecked(SharedConfig.confirmLinks));
+        items.add(UItem.asShadow(getString(R.string.BrowserSettingsConfirmOpeningInfo)));
         if (!SharedConfig.inappBrowser) {
             items.add(UItem.asHeader(getString(R.string.BrowserSettingsCustomTabsTitle)));
             items.add(UItem.asRadio(BUTTON_CUSTOMTABS_ON, getString(R.string.BrowserSettingsCustomTabs)).setChecked(SharedConfig.customTabs));
@@ -289,6 +293,9 @@ public class WebBrowserSettings extends UniversalFragment implements Notificatio
             ((TextCheckCell) view).setChecked(SharedConfig.inappBrowser);
             ((TextCheckCell) view).setBackgroundColorAnimated(SharedConfig.inappBrowser, Theme.getColor(SharedConfig.inappBrowser ? Theme.key_windowBackgroundChecked : Theme.key_windowBackgroundUnchecked));
             listView.adapter.update(true);
+        } else if (item.id == BUTTON_CONFIRM_LINKS) {
+            SharedConfig.toggleConfirmLinks();
+            ((TextCheckCell) view).setChecked(SharedConfig.confirmLinks);
         } else if (item.id == BUTTON_CUSTOMTABS_ON) {
             SharedConfig.toggleCustomTabs(true);
             listView.adapter.update(true);
