@@ -329,7 +329,7 @@ public class Browser {
         if ("mailto".equals(scheme) || "tel".equals(scheme) || "sms".equals(scheme)) {
             return false;
         }
-        if (isInternalUri(uri, null)) {
+        if ("tg".equals(scheme) || "ton".equals(scheme)) {
             return false;
         }
         String urlStr = uri.toString();
